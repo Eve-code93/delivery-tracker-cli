@@ -8,8 +8,9 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     price = Column(Float, nullable=False)
-    supplier_id = Column(Integer, ForeignKey('suppliers.id'))
+    supplier_id = Column(Integer, ForeignKey('suppliers.id'), nullable=False)
 
+    # Use string model names in relationships to avoid circular imports
     supplier = relationship("Supplier", back_populates="products")
     order_details = relationship("OrderDetail", back_populates="product", cascade="all, delete")
 
@@ -38,4 +39,3 @@ class Product(Base):
 
     def __repr__(self):
         return f"<Product id={self.id} name={self.name} price={self.price}>"
-# Ensure that the Supplier model is imported to establish the relationship
