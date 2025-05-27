@@ -13,6 +13,9 @@ class Order(Base):
     employee = relationship("Employee", back_populates="orders")
     customer = relationship("Customer", back_populates="orders")
 
+    # One-to-many relationship with OrderDetail
+    order_details = relationship("OrderDetail", back_populates="order", cascade="all, delete-orphan")
+
     @classmethod
     def create(cls, session, description, employee_id, customer_id):
         order = cls(description=description, employee_id=employee_id, customer_id=customer_id)

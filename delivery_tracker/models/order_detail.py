@@ -11,6 +11,7 @@ class OrderDetail(Base):
     quantity = Column(Integer, nullable=False)
     price = Column(Float, nullable=False)
 
+    # Relationships
     order = relationship("Order", back_populates="order_details")
     product = relationship("Product", back_populates="order_details")
 
