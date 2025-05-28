@@ -18,10 +18,10 @@ down_revision: Union[str, None] = 'e07acd484b66'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-op.execute("DROP TABLE IF EXISTS _alembic_tmp_customers")
 
 def upgrade() -> None:
-    """Upgrade schema."""
+    op.execute("DROP TABLE IF EXISTS _alembic_tmp_customers")
+
     # Customers table
     with op.batch_alter_table('customers') as batch_op:
         batch_op.alter_column('name',
@@ -107,7 +107,6 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Downgrade schema."""
     # Suppliers table
     with op.batch_alter_table('suppliers') as batch_op:
         batch_op.add_column(sa.Column('location', sa.VARCHAR(), nullable=True))
@@ -140,7 +139,6 @@ def downgrade() -> None:
         batch_op.drop_column('quantity')
 
     # Employees table
-    # No temp table workaround for downgrade, so revert columns directly
     with op.batch_alter_table('employees') as batch_op:
         batch_op.add_column(sa.Column('gender', sa.VARCHAR(), nullable=True))
         batch_op.add_column(sa.Column('age', sa.INTEGER(), nullable=True))

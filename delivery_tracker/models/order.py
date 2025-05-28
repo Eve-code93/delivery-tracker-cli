@@ -1,24 +1,31 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from models.base import Base
 
 class Order(Base):
     __tablename__ = 'orders'
 
     id = Column(Integer, primary_key=True)
-    description = Column(String, nullable=False)
-    employee_id = Column(Integer, ForeignKey('employees.id'))
-    customer_id = Column(Integer, ForeignKey('customers.id'))
+    total_price = Column(Integer, nullable=False)
+    time = Column(DateTime, default=datetime.utcnow)
+    employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False)
+    customer_id = Column(Integer, ForeignKey('customers.id'), nullable=False)
 
     employee = relationship("Employee", back_populates="orders")
     customer = relationship("Customer", back_populates="orders")
-
-    # One-to-many relationship with OrderDetail
     order_details = relationship("OrderDetail", back_populates="order", cascade="all, delete-orphan")
 
+    # ORM methods
     @classmethod
-    def create(cls, session, description, employee_id, customer_id):
-        order = cls(description=description, employee_id=employee_id, customer_id=customer_id)
+    def create(cls, session, total_price, employee_id, customer_id, time=None):
+        time = time or datetime.utcnow()
+        order = cls(
+            total_price=total_price,
+            time=time,
+            employee_id=employee_id,
+            customer_id=customer_id
+        )
         session.add(order)
         session.commit()
         return order
@@ -36,4 +43,6 @@ class Order(Base):
         session.commit()
 
     def __repr__(self):
-        return f"<Order id={self.id} description={self.description}>"
+        return (f"<Order id={self.id} total_price={self.total_price} "
+                f"time={self.time} customer_id={self.customer_id} "
+                f"employee_id={self.employee_id}>")

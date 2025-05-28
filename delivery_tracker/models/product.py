@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from models.base import Base
 
@@ -7,16 +7,17 @@ class Product(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    price = Column(Float, nullable=False)
+    type = Column(String, nullable=False)
+    price = Column(Integer, nullable=False)
+    in_stock = Column(Integer, nullable=False)
     supplier_id = Column(Integer, ForeignKey('suppliers.id'), nullable=False)
 
-    # Use string model names in relationships to avoid circular imports
     supplier = relationship("Supplier", back_populates="products")
-    order_details = relationship("OrderDetail", back_populates="product", cascade="all, delete")
+    order_details = relationship("OrderDetail", back_populates="product", cascade="all, delete-orphan")
 
     @classmethod
-    def create(cls, session, name, price, supplier_id):
-        product = cls(name=name, price=price, supplier_id=supplier_id)
+    def create(cls, session, name, type, price, in_stock, supplier_id):
+        product = cls(name=name, type=type, price=price, in_stock=in_stock, supplier_id=supplier_id)
         session.add(product)
         session.commit()
         return product
@@ -26,16 +27,13 @@ class Product(Base):
         return session.query(cls).all()
 
     @classmethod
-    def find_by_id(cls, session, product_id):
-        return session.query(cls).filter_by(id=product_id).first()
-
-    @classmethod
-    def find_by_name(cls, session, name):
-        return session.query(cls).filter(cls.name.ilike(f"%{name}%")).all()
+    def find_by_id(cls, session, prod_id):
+        return session.query(cls).filter_by(id=prod_id).first()
 
     def delete(self, session):
         session.delete(self)
         session.commit()
 
     def __repr__(self):
-        return f"<Product id={self.id} name={self.name} price={self.price}>"
+        return (f"<Product id={self.id} name={self.name} type={self.type} "
+                f"price={self.price} in_stock={self.in_stock} supplier_id={self.supplier_id}>")

@@ -8,15 +8,17 @@ def customer_cli():
     pass
 
 @customer_cli.command('create')
-@click.option('--name', prompt=True, help='Customer name')
-@click.option('--email', prompt=True, help='Customer email')
-def create_customer(name, email):
+@click.option('--name', prompt=True)
+@click.option('--address', prompt=True)
+@click.option('--phone-number', prompt=True)
+@click.option('--email', prompt=True)
+def create_customer(name, address, phone_number, email):
     session = SessionLocal()
     try:
-        customer = Customer.create(session, name, email)
-        click.echo(f"Customer created: {customer}")
+        customer = Customer.create(session, name, address, phone_number, email)
+        click.echo(f"✅ Customer created: {customer}")
     except Exception as e:
-        click.echo(f"Error creating customer: {e}")
+        click.echo(f"❌ Error creating customer: {e}")
     finally:
         session.close()
 
@@ -34,7 +36,7 @@ def list_customers():
         session.close()
 
 @customer_cli.command('delete')
-@click.option('--id', prompt=True, type=int, help='Customer ID to delete')
+@click.option('--id', prompt=True, type=int)
 def delete_customer(id):
     session = SessionLocal()
     try:
@@ -43,14 +45,14 @@ def delete_customer(id):
             click.echo("Customer not found.")
             return
         customer.delete(session)
-        click.echo("Customer deleted.")
+        click.echo("🗑️ Customer deleted.")
     except Exception as e:
-        click.echo(f"Error deleting customer: {e}")
+        click.echo(f"❌ Error deleting customer: {e}")
     finally:
         session.close()
 
 @customer_cli.command('find')
-@click.option('--name', prompt=True, help='Name or partial name to search')
+@click.option('--name', prompt=True)
 def find_customer(name):
     session = SessionLocal()
     try:
@@ -62,6 +64,3 @@ def find_customer(name):
             click.echo("No customers matched your search.")
     finally:
         session.close()
-
-
-

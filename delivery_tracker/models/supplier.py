@@ -7,13 +7,20 @@ class Supplier(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    contact_info = Column(String)
+    contact_name = Column(String)
+    contact_email = Column(String)
+    contact_phone = Column(String)
 
-    products = relationship("Product", back_populates="supplier", cascade="all, delete")
+    products = relationship("Product", back_populates="supplier", cascade="all, delete-orphan")
 
     @classmethod
-    def create(cls, session, name, contact_info):
-        supplier = cls(name=name, contact_info=contact_info)
+    def create(cls, session, name, contact_name, contact_email, contact_phone):
+        supplier = cls(
+            name=name,
+            contact_name=contact_name,
+            contact_email=contact_email,
+            contact_phone=contact_phone
+        )
         session.add(supplier)
         session.commit()
         return supplier
@@ -35,4 +42,7 @@ class Supplier(Base):
         session.commit()
 
     def __repr__(self):
-        return f"<Supplier id={self.id} name={self.name}>"
+        return (
+            f"<Supplier id={self.id} name={self.name} "
+            f"contact_name={self.contact_name} email={self.contact_email} phone={self.contact_phone}>"
+        )

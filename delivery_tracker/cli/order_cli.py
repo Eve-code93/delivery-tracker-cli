@@ -1,4 +1,5 @@
 import click
+from datetime import datetime
 from models.order import Order
 from db.session import SessionLocal
 
@@ -8,15 +9,18 @@ def order_cli():
     pass
 
 @order_cli.command('create')
-@click.option('--customer_id', prompt=True, type=int, help='Customer ID')
-@click.option('--employee_id', prompt=True, type=int, help='Employee ID')
-def create_order(customer_id, employee_id):
+@click.option('--total-price', prompt=True, type=int, help='Total price of the order')
+@click.option('--employee-id', prompt=True, type=int, help='ID of the employee who handled the order')
+@click.option('--customer-id', prompt=True, type=int, help='ID of the customer who placed the order')
+@click.option('--time', default=None, help='Datetime of the order (YYYY-MM-DD HH:MM), optional')
+def create_order(total_price, employee_id, customer_id, time):
     session = SessionLocal()
     try:
-        order = Order.create(session, customer_id, employee_id)
-        click.echo(f"Order created: {order}")
+        time_obj = datetime.strptime(time, "%Y-%m-%d %H:%M") if time else None
+        order = Order.create(session, total_price, employee_id, customer_id, time_obj)
+        click.echo(f"✅ Order created: {order}")
     except Exception as e:
-        click.echo(f"Error creating order: {e}")
+        click.echo(f"❌ Error creating order: {e}")
     finally:
         session.close()
 
@@ -26,10 +30,11 @@ def list_orders():
     try:
         orders = Order.get_all(session)
         if orders:
+            click.echo("📦 All Orders:")
             for o in orders:
                 click.echo(o)
         else:
-            click.echo("No orders found.")
+            click.echo("⚠️ No orders found.")
     finally:
         session.close()
 
@@ -40,26 +45,11 @@ def delete_order(id):
     try:
         order = Order.find_by_id(session, id)
         if not order:
-            click.echo("Order not found.")
+            click.echo("❌ Order not found.")
             return
         order.delete(session)
-        click.echo("Order deleted.")
+        click.echo("🗑️ Order deleted.")
     except Exception as e:
-        click.echo(f"Error deleting order: {e}")
+        click.echo(f"❌ Error deleting order: {e}")
     finally:
         session.close()
-
-@order_cli.command('find')
-@click.option('--id', prompt=True, type=int, help='Order ID to find')
-def find_order(id):
-    session = SessionLocal()
-    try:
-        order = Order.find_by_id(session, id)
-        if order:
-            click.echo(order)
-        else:
-            click.echo("Order not found.")
-    finally:
-        session.close()
-
-# Add view related commands as needed...
