@@ -7,7 +7,7 @@ class Product(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    type = Column(String, nullable=False)
+
     price = Column(Integer, nullable=False)
     in_stock = Column(Integer, nullable=False)
     supplier_id = Column(Integer, ForeignKey('suppliers.id'), nullable=False)
@@ -35,5 +35,5 @@ class Product(Base):
         session.commit()
 
     def __repr__(self):
-        return (f"<Product id={self.id} name={self.name} type={self.type} "
+        return (f"<Product id={self.id} name={self.name} "
                 f"price={self.price} in_stock={self.in_stock} supplier_id={self.supplier_id}>")

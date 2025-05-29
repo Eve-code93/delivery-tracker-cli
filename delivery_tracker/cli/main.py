@@ -1,95 +1,188 @@
 import sys
-from cli.customer_cli import customer_cli
-from cli.employee_cli import employee_cli
-from cli.order_cli import order_cli
-from cli.order_detail_cli import order_detail_cli
-from cli.product_cli import product_cli
-from cli.supplier_cli import supplier_cli
+import os
+import logging
 
-def show_main_menu():
-    print("\n--- Delivery Tracker CLI ---")
-    print("Select an entity to manage:")
-    print("1. Customers")
-    print("2. Employees")
-    print("3. Orders")
-    print("4. Order Details")
-    print("5. Products")
-    print("6. Suppliers")
-    print("0. Exit")
+# Set up paths and silence noisy SQL logs
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
-def show_entity_menu(entity_name):
-    print(f"\n--- Manage {entity_name} ---")
-    print("1. Create")
-    print("2. Delete")
-    print("3. List All")
-    print("4. Find by attribute")
-    print("5. View related objects")
-    print("0. Back to main menu")
+# Setup database
+try:
+    from db.session import engine
+    from models import Base  # Make sure Base is defined here
+    Base.metadata.create_all(bind=engine)
+    print("✅ Database and tables are ready.")
+except Exception as e:
+    print(f"❌ Error setting up the database: {e}")
+    sys.exit(1)
 
-def input_choice(prompt, valid_choices):
-    choice = input(prompt).strip()
-    while choice not in valid_choices:
-        print("Invalid choice. Please try again.")
-        choice = input(prompt).strip()
-    return choice
+# Import CLI interaction modules
+try:
+    from cli.customer_cli import (
+        create_customer_interactive, list_customers_interactive,
+        delete_customer_interactive,
+        find_customer_interactive, view_customer_related_objects
+    )
+    from cli.employee_cli import (
+        create_employee_interactive, list_employees_interactive,
+        delete_employee_interactive, find_employee_interactive
+    )
+    from cli.product_cli import (
+        create_product_interactive, list_products_interactive,
+        delete_product_interactive, 
+    )
+    from cli.order_cli import (
+        create_order_interactive, list_orders_interactive,
+        delete_order_interactive, 
+    )
+    from cli.order_detail_cli import (
+        create_order_detail_interactive, list_order_details_interactive,
+         delete_order_detail_interactive, 
+    )
+    from cli.supplier_cli import (
+        create_supplier_interactive, list_suppliers_interactive,
+        delete_supplier_interactive, find_supplier_interactive
+    )
+except ImportError as e:
+    print(f"❌ Import error: {e}")
+    print("➡️ Make sure you run this script from the project root and your `cli/` folder exists.")
+    sys.exit(1)
 
-def run_interactive():
+# ---------- SUB-MENU DEFINITIONS ----------
+
+def customer_menu():
     while True:
-        show_main_menu()
-        choice = input_choice("Enter choice: ", ['0','1','2','3','4','5','6'])
-        if choice == '0':
-            print("Goodbye!")
-            sys.exit(0)
+        print("\n📋 CUSTOMER MENU")
+        print("1. Create")
+        print("2. List")
+        print("3. Find")
+        print("4. Delete")
+        print("5. View Related Orders")
+        print("6. Back")
+        choice = input("Choose: ").strip()
+        match choice:
+            case '1': create_customer_interactive()
+            case '2': list_customers_interactive()
+            case '3': find_customer_interactive()
+            case '4': delete_customer_interactive()
+            case '5': view_customer_related_objects()
+            case '6': break
+            case _: print("❌ Invalid choice.")
 
-        entity_map = {
-            '1': ('Customers', customer_cli),
-            '2': ('Employees', employee_cli),
-            '3': ('Orders', order_cli),
-            '4': ('Order Details', order_detail_cli),
-            '5': ('Products', product_cli),
-            '6': ('Suppliers', supplier_cli),
-        }
+def employee_menu():
+    while True:
+        print("\n👤 EMPLOYEE MENU")
+        print("1. Create")
+        print("2. List")
+        print("3. Find")
+        print("4. Delete")
+        print("5. Back")
+        choice = input("Choose: ").strip()
+        match choice:
+            case '1': create_employee_interactive()
+            case '2': list_employees_interactive()
+            case '3': find_employee_interactive()
+            case '4': delete_employee_interactive()
+            case '5': break
+            case _: print("❌ Invalid choice.")
 
-        entity_name, cli_group = entity_map[choice]
+def product_menu():
+    while True:
+        print("\n📦 PRODUCT MENU")
+        print("1. Create")
+        print("2. List")
+    
+        print("4. Delete")
+        print("5. Back")
+        choice = input("Choose: ").strip()
+        match choice:
+            case '1': create_product_interactive()
+            case '2': list_products_interactive()
+            case '4': delete_product_interactive()
+            case '5': break
+            case _: print("❌ Invalid choice.")
 
-        while True:
-            show_entity_menu(entity_name)
-            action = input_choice("Choose action: ", ['0','1','2','3','4','5'])
-            if action == '0':
-                break  # Back to main menu
+def order_menu():
+    while True:
+        print("\n🧾 ORDER MENU")
+        print("1. Create")
+        print("2. List")
+        print("3. Find")
+        print("4. Delete")
+        print("5. Back")
+        choice = input("Choose: ").strip()
+        match choice:
+            case '1': create_order_interactive()
+            case '2': list_orders_interactive()
+            case '3': find_order_interactive()
+            case '4': delete_order_interactive()
+            case '5': break
+            case _: print("❌ Invalid choice.")
 
-            # Here, instead of invoking Click commands directly (which is tricky),
-            # you should call the underlying business logic functions for that entity.
-            # For now, just a placeholder print:
-            print(f"You chose to {['Create','Delete','List All','Find','View Related'][int(action)-1]} {entity_name}")
+def order_detail_menu():
+    while True:
+        print("\n📄 ORDER DETAIL MENU")
+        print("1. Create")
+        print("2. List")
+        print("3. Find")
+        print("4. Delete")
+        print("5. Back")
+        choice = input("Choose: ").strip()
+        match choice:
+            case '1': create_order_detail_interactive()
+            case '2': list_order_details_interactive()
+            case '3': find_order_detail_interactive()
+            case '4': delete_order_detail_interactive()
+            case '5': break
+            case _: print("❌ Invalid choice.")
 
-            # TODO: Call the appropriate function for each action, e.g.:
-            # if entity_name == 'Customers' and action == '1':
-            #     create_customer_interactive()
-            # Implement input prompts and validations inside those functions.
+def supplier_menu():
+    while True:
+        print("\n🏭 SUPPLIER MENU")
+        print("1. Create")
+        print("2. List")
+        print("3. Find")
+        print("4. Delete")
+        print("5. Back")
+        choice = input("Choose: ").strip()
+        match choice:
+            case '1': create_supplier_interactive()
+            case '2': list_suppliers_interactive()
+            case '3': find_supplier_interactive()
+            case '4': delete_supplier_interactive()
+            case '5': break
+            case _: print("❌ Invalid choice.")
 
-def main():
-    import click
+# ---------- MAIN MENU ----------
 
-    @click.group()
-    def cli():
-        """Delivery Tracker CLI - Manage customers, employees, orders, and more."""
-        pass
+def main_menu():
+    while True:
+        print("\n📦 DELIVERY TRACKER CLI")
+        print("1. Customers")
+        print("2. Employees")
+        print("3. Products")
+        print("4. Orders")
+        print("5. Order Details")
+        print("6. Suppliers")
+        print("7. Exit")
+        choice = input("Choose an option: ").strip()
 
-    # Register existing CLI subcommands for normal CLI usage
-    cli.add_command(customer_cli, name='customer-cli')
-    cli.add_command(employee_cli, name='employee-cli')
-    cli.add_command(order_cli, name='order-cli')
-    cli.add_command(order_detail_cli, name='order-detail-cli')
-    cli.add_command(product_cli, name='product-cli')
-    cli.add_command(supplier_cli, name='supplier-cli')
+        match choice:
+            case '1': customer_menu()
+            case '2': employee_menu()
+            case '3': product_menu()
+            case '4': order_menu()
+            case '5': order_detail_menu()
+            case '6': supplier_menu()
+            case '7':
+                print("👋 Goodbye!")
+                break
+            case _: print("❌ Invalid option.")
 
-    @cli.command()
-    def interactive():
-        """Run the interactive menu-driven CLI."""
-        run_interactive()
-
-    cli()
+# ---------- ENTRY POINT ----------
 
 if __name__ == "__main__":
-    main()
+    try:
+        main_menu()
+    except KeyboardInterrupt:
+        print("\n🛑 Interrupted. Exiting...")

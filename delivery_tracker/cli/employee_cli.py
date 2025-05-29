@@ -1,3 +1,4 @@
+
 import click
 from datetime import datetime
 from models.employee import Employee
@@ -8,6 +9,8 @@ def employee_cli():
     """Commands to manage employees."""
     pass
 
+# --- CLI commands ---
+
 @employee_cli.command('create')
 @click.option('--name', prompt=True, help='Employee name')
 @click.option('--age', prompt=True, type=int, help='Employee age')
@@ -17,9 +20,7 @@ def employee_cli():
 def create_employee(name, age, gender, role, date_employed):
     session = SessionLocal()
     try:
-        # Convert string to date
         date_employed_obj = datetime.strptime(date_employed, "%Y-%m-%d").date()
-
         employee = Employee.create(
             session=session,
             name=name,
@@ -79,3 +80,89 @@ def find_employee(name):
     finally:
         session.close()
 
+# --- Interactive functions for custom CLI ---
+
+def create_employee_interactive():
+    name = input("Enter employee name: ").strip()
+    try:
+        age = int(input("Enter age: "))
+    except ValueError:
+        print("❌ Invalid age.")
+        return
+
+    gender = input("Enter gender (Male/Female/Other): ").strip().capitalize()
+    if gender not in ['Male', 'Female', 'Other']:
+        print("❌ Invalid gender.")
+        return
+
+    role = input("Enter role: ").strip()
+    date_str = input("Enter date employed (YYYY-MM-DD): ").strip()
+
+    try:
+        date_employed = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        print("❌ Invalid date format.")
+        return
+
+    session = SessionLocal()
+    try:
+        employee = Employee.create(
+            session=session,
+            name=name,
+            age=age,
+            gender=gender,
+            role=role,
+            date_employed=date_employed
+        )
+        print(f"✅ Employee created: {employee}")
+    except Exception as e:
+        print(f"❌ Error creating employee: {e}")
+    finally:
+        session.close()
+
+def list_employees_interactive():
+    session = SessionLocal()
+    try:
+        employees = Employee.get_all(session)
+        if employees:
+            print("📋 Employees:")
+            for e in employees:
+                print(e)
+        else:
+            print("⚠️ No employees found.")
+    finally:
+        session.close()
+
+def delete_employee_interactive():
+    try:
+        id = int(input("Enter employee ID to delete: "))
+    except ValueError:
+        print("❌ Invalid ID.")
+        return
+
+    session = SessionLocal()
+    try:
+        employee = Employee.find_by_id(session, id)
+        if not employee:
+            print("❌ Employee not found.")
+            return
+        employee.delete(session)
+        print("🗑️ Employee deleted.")
+    except Exception as e:
+        print(f"❌ Error deleting employee: {e}")
+    finally:
+        session.close()
+
+def find_employee_interactive():
+    name = input("Enter name or partial name to search: ").strip()
+    session = SessionLocal()
+    try:
+        results = Employee.find_by_name(session, name)
+        if results:
+            print("🔍 Search Results:")
+            for e in results:
+                print(e)
+        else:
+            print("⚠️ No employees matched your search.")
+    finally:
+        session.close()
