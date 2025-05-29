@@ -6,10 +6,10 @@ import logging
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
-# Setup database
+
 try:
     from db.session import engine
-    from models import Base  # Make sure Base is defined here
+    from models import Base 
     Base.metadata.create_all(bind=engine)
     print("✅ Database and tables are ready.")
 except Exception as e:
