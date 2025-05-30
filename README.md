@@ -17,9 +17,7 @@ SQLite + SQLAlchemy – Fast local database for persistent storage.
 Database Migrations with Alembic – Easily evolve the schema as your app grows.
 
 🗂️ Project Structure
-bash
-Copy
-Edit
+
 delivery_tracker/
 ├── alembic/            # Alembic migration files
 ├── cli/                # CLI command modules
@@ -46,42 +44,27 @@ delivery_tracker/
 └── requirements.txt    # Python dependencies
 🛠️ Setup Instructions
 1. Clone the Repository
-bash
-Copy
-Edit
+
 git clone https://github.com/Eve-code93/delivery-tracker-cli.git
 cd delivery-tracker-cli/delivery_tracker
 2. Create and Activate Virtual Environment
-bash
-Copy
-Edit
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
 # OR
 venv\Scripts\activate  # Windows
 3. Install Dependencies
-bash
-Copy
-Edit
+
 pip install -r requirements.txt
 4. Run Database Migrations
-bash
-Copy
-Edit
+
 alembic upgrade head
 This will generate the SQLite database and required tables.
 
 ⚙️ Using the CLI
 All commands are accessed through the main.py CLI entry point:
 
-bash
-Copy
-Edit
 python main.py
 🔹 Available Commands
-bash
-Copy
-Edit
 python main.py --help
 
 Usage: main.py [OPTIONS] COMMAND [ARGS]...
@@ -94,33 +77,16 @@ Commands:
   order      Manage orders
   product    Manage products
 ➕ Add a New Customer
-bash
-Copy
-Edit
 python main.py customer add --name "Alice Smith" --email "alice@example.com" --address "123 Nairobi Rd"
 ➕ Add a New Order
-bash
-Copy
-Edit
 python main.py order add --customer-id 1 --product-id 2 --quantity 3 --status "Pending"
 🔍 View Orders
-bash
-Copy
-Edit
 python main.py order list
 📊 Sample Data
 To insert example records into the database, run:
-
-bash
-Copy
-Edit
 python insert_data.py
 🔄 Database Migrations (Alembic)
 To generate a new migration after updating models:
-
-bash
-Copy
-Edit
 alembic revision --autogenerate -m "Describe your change"
 alembic upgrade head
 🧪 Testing (Optional)
